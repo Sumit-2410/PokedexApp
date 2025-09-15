@@ -16,14 +16,17 @@ final class HomeViewModel {
     var onError: ((String) -> Void)?
     
     func fetchPokemon() {
-        APIService.shared.fetchPokemonList { [weak self] result in
+        APIService.shared.request(
+            urlString: "https://pokeapi.co/api/v2/pokemon?limit=100"
+        ) { (result: Result<PokemonListResponse, Error>) in
             switch result {
-            case .success(let list):
-                self?.allPokemon = list
-                self?.filteredPokemon = list
-                self?.onDataUpdated?()
+            case .success(let response):
+                let entries = response.results
+                self.allPokemon = entries
+                self.filteredPokemon = entries
+                self.onDataUpdated?()
             case .failure(let error):
-                self?.onError?(error.localizedDescription)
+                print("Error:", error)
             }
         }
     }

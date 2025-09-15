@@ -9,25 +9,25 @@ import Foundation
 
 final class PokemonDetailViewModel {
 
-    private let service: PokemonServiceProtocol
     private let name: String
 
     // Outputs
     var onDataLoaded: ((PokemonDetail) -> Void)?
     var onError: ((String) -> Void)?
 
-    init(name: String, service: PokemonServiceProtocol = PokemonService()) {
+    init(name: String) {
         self.name = name
-        self.service = service
     }
 
     func loadDetail() {
-        service.fetchPokemonDetail(name: name) { [weak self] result in
+        APIService.shared.request(
+            urlString: "https://pokeapi.co/api/v2/pokemon/\(name.lowercased())"
+        ) { (result: Result<PokemonDetail, Error>) in
             switch result {
             case .success(let detail):
-                self?.onDataLoaded?(detail)
+                self.onDataLoaded?(detail)
             case .failure(let error):
-                self?.onError?(error.localizedDescription)
+                print("Error:", error)
             }
         }
     }
